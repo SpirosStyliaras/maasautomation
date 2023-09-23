@@ -76,7 +76,7 @@ Create_KVM_Instance
     Log    ${\n}::: Attach additional libvirt interfaces to KVM instance    console=${True}
     ${additional_interfaces}    Set Variable    ${${MAAS_SERVER}}[machines][${MAAS_MACHINE}][additional_interfaces]
     ${target_interface_name}    String.Fetch From Right    ${MAAS_MACHINE}    -
-    ${target_interface_name}    Set Variable    maas-vm-${target_interface_name}
+    ${target_interface_name}    Set Variable    vm-${target_interface_name}
     FOR    ${additional_interface}    IN    @{additional_interfaces}
     ${virsh_attach_command}=    Catenate    SEPARATOR=${SPACE}
         ...  sshpass -p ${${MAAS_SERVER}}[kvm_hosts][${KVM_HOST}][password] virsh --connect ${${MAAS_SERVER}}[kvm_hosts][${KVM_HOST}][address] attach-interface
