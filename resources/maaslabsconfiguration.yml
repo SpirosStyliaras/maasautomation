@@ -1,0 +1,164 @@
+# Configuration of MaaS servers, KVM hosts and enlisted machines
+
+maas-spiros-desktop:
+  maas_url: http://maas.spiros-desktop:5240/MAAS
+  maas_username: admin
+  maas_password: admin
+  default_commission_ubuntu_os:
+    release: focal
+    minimum_hwe_kernel: ga-20.04
+  commission_timeout: 30
+  default_deployment_os:
+    operating_system: ubuntu
+    release: focal
+  deploy_timeout: 60
+  release_timeout: 5
+  tags:
+    - name: DevOps
+      description: "DevOps machine"
+    - name: Kubernetes
+      description: "K8s cluster machine"
+    - name: DockerSwarm
+      description: "Docker Swarm machine"
+  resource_pools:
+    - name: DevOps
+      description: "Resource pool for the deployment of DevOps tools"
+    - name: Kubernetes
+      description: "Resource pool for the deployment of K8s cluster"
+    - name: DockerSwarm
+      description: "Resource pool for the deployment of Docker Swarm"
+  availability_zones:
+    - name: spiros-desktop
+      description: "My Dell desktop Availability Zone"
+  kvm_hosts:
+    kvm.hypervisor.spiros-desktop:
+      type: virsh
+      address: qemu+ssh://jenkins@192.168.100.1/system
+      username: jenkins
+      password: jenkins
+      zone: spiros-desktop
+      cpu_over_commit_ratio: 2.0
+      memory_over_commit_ratio: 4.0
+  machines:
+    maas-machine-1:
+      deployment_os:
+        operating_system: ubuntu
+        release: focal
+      tags:
+        - Kubernetes
+      pool: Kubernetes
+      cores: 2
+      memory: 4096
+      architecture: amd64/generic
+      default_interface:
+        ens1f0:
+          fabric: maas-vmm-fabric
+          interface_type: physical
+          vlan:
+            name: untagged
+            vid: 100
+      additional_interfaces:
+        - name: ens1f1
+          host_connection_type: network
+          model: virtio
+          libvirt_network: maas-net-1
+          interface_type: physical
+          fabric: maas-vmm-fabric
+          vlan:
+            name: untagged
+            vid: 100
+        - name: ens2f0
+          host_connection_type: network
+          model: virtio
+          libvirt_network: maas-net-2
+          interface_type: physical
+          fabric: maas-vmm-fabric
+          vlan:
+            name: maas-net-2
+            vid: 101
+        - name: ens2f1
+          host_connection_type: network
+          model: virtio
+          libvirt_network: maas-net-2
+          interface_type: physical
+          fabric: maas-vmm-fabric
+          vlan:
+            name: maas-net-2
+            vid: 101
+      link_aggregations:
+        - name: bond0
+          interface_type: bond
+          fabric: maas-vmm-fabric
+          vlan:
+            name: untagged
+            vid: 100
+          parents:
+            - ens1f0
+            - ens1f1
+          bond_mode: active-backup
+          bond_miimon: 1000
+          bond_updelay: 1000
+          bond_downdelay: 1000
+        - name: bond1
+          interface_type: bond
+          fabric: maas-vmm-fabric
+          vlan:
+            name: maas-net-2
+            vid: 101
+          parents:
+            - ens2f0
+            - ens2f1
+          bond_mode: active-backup
+          bond_miimon: 1000
+          bond_updelay: 1000
+          bond_downdelay: 1000
+      bridges:
+      links:
+        - interface_name: bond0
+          subnet_cidr: 192.168.100.0/24
+          ip: 192.168.100.201
+        - interface_name: bond1
+          subnet_cidr: 192.168.101.0/24
+          ip: 192.168.101.201
+      storage:
+        vda:
+          size: 20
+    maas-machine-2:
+      deployment_os:
+        operating_system: ubuntu
+        release: focal
+      tags:
+        - Kubernetes
+      pool: DevOps
+      cores: 2
+      memory: 4096
+      architecture: amd64/generic
+      default_interface:
+        ens3:
+          fabric: maas-vmm-fabric
+          vlan:
+            name: untagged
+            vid: 100
+          interface_type: physical
+      additional_interfaces:
+        - name: ens8
+          host_connection_type: network
+          model: virtio
+          libvirt_network: maas-net-2
+          interface_type: physical
+          fabric: maas-vmm-fabric
+          vlan:
+            name: maas-net-2
+            vid: 101
+      link_aggregations:
+      bridges:
+      links:
+        - interface_name: ens3
+          subnet_cidr: 192.168.100.0/24
+          ip: 192.168.100.202
+        - interface_name: ens8
+          subnet_cidr: 192.168.101.0/24
+          ip: 192.168.101.202
+      storage:
+        vda:
+          size: 20
