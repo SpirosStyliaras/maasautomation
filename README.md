@@ -10,7 +10,7 @@ MAAS (Metal as a Service) Robot automation project. A repository that enables th
 
 ## Dependencies
 
-The tasks defined in this repository sshpass utility before running. Install sshpass in a Debian OS family system with the following commands:
+The tasks defined in this repository require sshpass utility before running. Install sshpass in a Debian OS family system with the following commands:
 ```sh
 sudo apt update -y
 sudo apt upgrade -y
@@ -61,12 +61,12 @@ A number of Robot variables need to be set and given as input to automated tasks
 the machine or machines where various actions are executed on, the KVM hypervisor selected, the MAAS machine tags etc. You can define any Robot variable as global using this flag
 but there is a set of mandatory variables per task that if not set will lead to task execution failure.
 List of mandatory Robot variables:
-- MAAS_SERVER: The name of the configured MAAS server in `resources/maaslabsconfiguration.yml`. This is the top level - and single server - parameter in our configuration file
+- ```MAAS_SERVER```: The name of the configured MAAS server in `resources/maaslabsconfiguration.yml`. This is the top level - and single server - parameter in our configuration file
 (`maas-spiros-desktop`).
-- KVM_HOST: The name of the KVM hypervisor in `resources/maaslabsconfiguration.yml` (`kvm_hosts` parameter).
-- MAAS_MACHINE: The name of the enlisted MAAS machine (`machines` parameter).
-- MAAS_TAG: The MAAS tag added to machines.
-- MAAS_MACHINE_HOSTNAME: The hostname of the MAAS machine after commissioning.
+- ```KVM_HOST```: The name of the KVM hypervisor in `resources/maaslabsconfiguration.yml` (`kvm_hosts` parameter).
+- ```MAAS_MACHINE```: The name of the enlisted MAAS machine (`machines` parameter).
+- ```MAAS_TAG```: The MAAS tag added to machines.
+- ```MAAS_MACHINE_HOSTNAME```: The hostname of the MAAS machine after commissioning.
 
 
 ## Execution
@@ -74,23 +74,31 @@ List of mandatory Robot variables:
 Always set `PYTHONPATH` to include projects libraries directory. Refer to the robot execution examples below:
 ```
 export PYTHONPATH=libraries/
-
+```
+Create KVM Virtual Machine:
+```
 robot --loglevel TRACE:DEBUG --outputdir logs --timestampoutputs \
 --variable MAAS_SERVER:maas-spiros-desktop \
 --variable KVM_HOST:kvm.hypervisor.spiros-desktop \
 --variable MAAS_MACHINE:maas-machine-1 \
 --test Create_KVM_Instance tasks
-
+```
+Commission VM through MAAS:
+```
 robot --loglevel TRACE:DEBUG --outputdir logs --timestampoutputs \
 --variable MAAS_SERVER:maas-spiros-desktop \
 --variable MAAS_MACHINE:maas-machine-1 \
 --variable MAAS_MACHINE_HOSTNAME:maas-machine-1 \
 --test tasks.maas_commission_deploy.Commission_MAAS_Machine tasks
-
+```
+Deploy VM through MAAS:
+```
 robot --loglevel TRACE:DEBUG --outputdir logs --timestampoutputs \
 --variable MAAS_SERVER:maas-spiros-desktop \
 --variable MAAS_MACHINE:maas-machine-1 \
 --test tasks.maas_commission_deploy.Deploy_MAAS_Machine tasks
-
+```
+List MAAS enlisted machines:
+```
 robot --loglevel TRACE:DEBUG --outputdir logs --timestampoutputs --variable MAAS_SERVER:maas-spiros-desktop --test List_MAAS_Machines tasks/maas_commission_deploy.robot
 ```
