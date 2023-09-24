@@ -61,12 +61,12 @@ A number of Robot variables need to be set and given as input to automated tasks
 the machine or machines where various actions are executed on, the KVM hypervisor selected, the MAAS machine tags etc. You can define any Robot variable as global using this flag
 but there is a set of mandatory variables per task that if not set will lead to task execution failure.
 List of mandatory Robot variables:
-- ```MAAS_SERVER```: The name of the configured MAAS server in `resources/maaslabsconfiguration.yml`. This is the top level - and single server - parameter in our configuration file
+- `MAAS_SERVER`: The name of the configured MAAS server in `resources/maaslabsconfiguration.yml`. This is the top level - and single server - parameter in our configuration file
 (`maas-spiros-desktop`).
-- ```KVM_HOST```: The name of the KVM hypervisor in `resources/maaslabsconfiguration.yml` (`kvm_hosts` parameter).
-- ```MAAS_MACHINE```: The name of the enlisted MAAS machine (`machines` parameter).
-- ```MAAS_TAG```: The MAAS tag added to machines.
-- ```MAAS_MACHINE_HOSTNAME```: The hostname of the MAAS machine after commissioning.
+- `KVM_HOST`: The name of the KVM hypervisor in `resources/maaslabsconfiguration.yml` (`kvm_hosts` parameter).
+- `MAAS_MACHINE`: The name of the enlisted MAAS machine (`machines` parameter).
+- `MAAS_TAG`: The MAAS tag added to machines.
+- `MAAS_MACHINE_HOSTNAME`: The hostname of the MAAS machine after commissioning.
 
 
 ## Execution
