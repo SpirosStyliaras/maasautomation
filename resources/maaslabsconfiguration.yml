@@ -168,7 +168,7 @@ maas-spiros-desktop:
         release: focal
       tags:
         - Kubernetes
-      pool: DevOps
+      pool: Kubernetes
       cores: 2
       memory: 4096
       architecture: amd64/generic
