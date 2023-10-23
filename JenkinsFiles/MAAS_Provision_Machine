@@ -1,0 +1,107 @@
+maas_machine = manager.build.environment.get("MAAS_MACHINE")
+manager.addShortText("MAAS machine: $maas_machine")
+
+
+pipeline {
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+        timestamps()
+        }
+    parameters {
+        string(name: 'MAAS_SERVER', defaultValue: 'maas-spiros-desktop', description: 'MAAS server leveraged.')
+        string(name: 'KVM_HOST', defaultValue: 'kvm.hypervisor.spiros-desktop', description: 'KVM Hypervisor.')
+        string(name: 'MAAS_MACHINE', defaultValue: '', description: 'MAAS enlisted machine for commissioning and deployment.')
+        string(name: 'MAAS_MACHINE_HOSTNAME', defaultValue: '', description: 'Commissioned MAAS machine hostname.')
+        }
+    agent { node { label 'master' } }
+    stages {
+        stage('Provision KVM instance') {
+            steps {
+                cleanWs()
+                git url: 'git@github.com:SpirosStyliaras/maasautomation.git', branch: 'main', credentialsId: 'github_account_ssh_key'
+                echo "::: Started instantiation of KVM instance ${params.MAAS_MACHINE} in hypervisor ${params.KVM_HOST}"
+                withPythonEnv('/usr/bin/python3') {
+                    withEnv(['PYTHONPATH=libraries/']) {
+                        sh 'pip3 install wheel'
+                        sh 'pip3 install -r pip_requirements.txt --quiet'
+                        sh  """
+                            robot --loglevel TRACE:DEBUG --outputdir logs --timestampoutputs \
+                            --variable MAAS_SERVER:${params.MAAS_SERVER} \
+                            --variable KVM_HOST:${params.KVM_HOST} \
+                            --variable MAAS_MACHINE:${params.MAAS_MACHINE} \
+                            --test tasks.maas_pods.Create_KVM_Instance tasks
+                            """
+                        }
+                    }
+                }
+            post {
+                always {
+                    stash includes: 'logs/*', name: 'provision-logs'   
+                        }
+                    }    
+                }
+        stage('Commission MAAS machine') {
+            steps {
+                echo "::: Started commissioning of MAAS Machine ${params.MAAS_MACHINE}"
+                withPythonEnv('/usr/bin/python3') {
+                    withEnv(['PYTHONPATH=libraries/']) {
+                        sh  """
+                            robot --loglevel TRACE:DEBUG --outputdir logs --timestampoutputs --variable MAAS_SERVER:${params.MAAS_SERVER} \
+                            --variable MAAS_MACHINE:${params.MAAS_MACHINE} \
+                            --variable MAAS_MACHINE_HOSTNAME:${params.MAAS_MACHINE_HOSTNAME} \
+                            --test tasks.maas_commission_deploy.Commission_MAAS_Machine tasks
+                            """
+                        }
+                    }
+                }
+            post {
+                    always {
+                        stash includes: 'logs/*', name: 'commission-logs'   
+                        }
+                    }    
+                }
+        stage('Deploy MAAS machine') {
+            steps {
+                echo "::: Started deployment of MAAS Machine ${params.MAAS_MACHINE}"
+                withPythonEnv('/usr/bin/python3') {
+                    withEnv(['PYTHONPATH=libraries/']) {
+                        sh  """
+                            robot --loglevel TRACE:DEBUG --outputdir logs --timestampoutputs --variable MAAS_SERVER:${params.MAAS_SERVER} \
+                            --variable MAAS_MACHINE:${params.MAAS_MACHINE} \
+                            --test tasks.maas_commission_deploy.Deploy_MAAS_Machine tasks
+                            """
+                            }
+                        }
+                }
+            post {
+                always {
+                    stash includes: 'logs/*', name: 'deploy-logs'   
+                    }
+                }  
+            }
+        }
+    post {
+        always {
+            unstash 'provision-logs'
+            unstash 'commission-logs'
+            unstash 'deploy-logs'
+            withPythonEnv('/usr/bin/python3') {
+                withEnv(['PYTHONPATH=libraries/']) {
+                    sh  """
+                        rebot --name Provision_MAAS_Machine --outputdir logs --output output.xml logs/output-*.xml || true
+                        """
+                        }
+                    }
+            robot outputPath: 'logs/',
+                  logFileName: 'log.html',
+                  outputFileName: 'output.xml',
+                  reportFileName: 'report.html', 
+                  passThreshold: 100
+            }
+        }
+    }
+    
+    
+    
+    
+    
