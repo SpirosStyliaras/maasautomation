@@ -8,7 +8,7 @@ pipeline {
         timestamps()
         }
     parameters {
-        string(name: 'MAAS_SERVER', defaultValue: 'spiros-desktop-maas', description: 'MAAS server leveraged.')
+        string(name: 'MAAS_SERVER', defaultValue: 'maas-spiros-desktop', description: 'MAAS server leveraged.')
         string(name: 'MAAS_MACHINE', defaultValue: '', description: 'MAAS enlisted machine for Commission and Deploy.')
         string(name: 'MAAS_MACHINE_HOSTNAME', defaultValue: '', description: 'Commissioned MAAS machine hostname.')
         }
