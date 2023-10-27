@@ -169,8 +169,8 @@ maas-spiros-desktop:
       tags:
         - Kubernetes
       pool: Kubernetes
-      cores: 2
-      memory: 4096
+      cores: 4
+      memory: 8192
       architecture: amd64/generic
       default_interface:
         ens3:
@@ -200,4 +200,4 @@ maas-spiros-desktop:
           ip: 192.168.101.203
       storage:
         vda:
-          size: 20
+          size: 30
