@@ -10,7 +10,7 @@ maas-spiros-desktop:
   commission_timeout: 30
   default_deployment_os:
     operating_system: ubuntu
-    release: focal
+    release: jammy
   deploy_timeout: 60
   release_timeout: 5
   tags:
@@ -165,7 +165,7 @@ maas-spiros-desktop:
     maas-machine-3:
       deployment_os:
         operating_system: ubuntu
-        release: focal
+        release: jammy
       tags:
         - Kubernetes
       pool: Kubernetes
